@@ -20,14 +20,11 @@ jobs:
           echo "=== جاري البحث عن ملفات مضغوطة وفكها ==="
           ZIP_FILE=$(ls *.zip 2>/dev/null | head -n 1)
           if [ -z "$ZIP_FILE" ]; then
-            echo "خطأ: لم يتم العثور على أي ملف ينتهي بـ .zip في المستودع!"
-            echo "تأكد من رفع ملف مشروعك المضغوط إلى الصفحة الرئيسية في جيتهاب."
+            echo "خطأ: لم يتم العثور على ملف مضغوط!"
             exit 1
           fi
-          echo "تم العثور على الملف: $ZIP_FILE"
           unzip -q "$ZIP_FILE" -d extracted_project
           echo "=== تم فك الضغط بنجاح ==="
-          ls -la extracted_project
 
       # 3. إعداد الجافا
       - name: Set up Java
@@ -42,13 +39,19 @@ jobs:
         with:
           channel: 'stable'
 
-      # 5. الدخول للمجلد وبناء التطبيق
+      # 5. حل تعارض الحزم وبناء التطبيق
       - name: Build APK
         run: |
           cd extracted_project
-          # إذا كان هناك مجلد داخلي بنفس الاسم، سينتقل إليه السكريبت تلقائياً
           if [ -d "neural_craft_flutter" ]; then cd neural_craft_flutter; fi
+          
+          echo "=== جاري ترقية حزمة intl لحل التعارض ==="
+          flutter pub add intl:^0.20.2
+          
+          echo "=== جاري تحميل بقية الحزم ==="
           flutter pub get
+          
+          echo "=== جاري بناء التطبيق الآن ==="
           flutter build apk --release
 
       # 6. استخراج ملف الـ APK للتحميل
