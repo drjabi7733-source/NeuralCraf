@@ -19,16 +19,10 @@ jobs:
     - name: Get dependencies
       run: |
         cd neural_craft_flutter
-        flutter pub add intl:^0.20.2
-        flutter pub get
+        flutter pub get --no-example
 
     - name: Build APK
       run: |
         cd neural_craft_flutter
-        flutter build apk --release
-
-    - uses: actions/upload-artifact@v4
-      with:
-        name: release-apk
-        path: neural_craft_flutter/build/app/outputs/flutter-apk/app-release.apk
+        flutter build apk --release --no-pub
         
