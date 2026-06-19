@@ -26,29 +26,26 @@ jobs:
           unzip -q "$ZIP_FILE" -d extracted_project
           echo "=== تم فك الضغط بنجاح ==="
 
-      # 3. إعداد الجافا
+      # 3. إعداد الجافا (إصدار 11 متوافق جداً مع فلاتر 2)
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'oracle'
-          java-version: '17'
+          distribution: 'zulu'
+          java-version: '11'
 
-      # 4. إعداد الفلاتر
+      # 4. إعداد الفلاتر (إصدار قديم متوافق مع مشروعك وحل مشكلة الـ embedding)
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          flutter-version: '2.10.5' # استخدام هذا الإصدار يحل مشكلة الـ v1 embedding كلياً
 
-      # 5. حل تعارض الحزم وبناء التطبيق
+      # 5. بناء التطبيق
       - name: Build APK
         run: |
           cd extracted_project
           if [ -d "neural_craft_flutter" ]; then cd neural_craft_flutter; fi
           
-          echo "=== جاري ترقية حزمة intl لحل التعارض ==="
-          flutter pub add intl:^0.20.2
-          
-          echo "=== جاري تحميل بقية الحزم ==="
+          echo "=== جاري تحميل الحزم متوافقة مع الإصدار ==="
           flutter pub get
           
           echo "=== جاري بناء التطبيق الآن ==="
