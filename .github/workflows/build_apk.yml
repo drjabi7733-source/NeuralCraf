@@ -1,28 +1,35 @@
 name: Build Android APK
+
 on:
   push:
+    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v4
+      # 1. جلب الملفات من المستودع (بما فيها ملف الـ zip)
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-    - name: Unzip project file
-      run: unzip -q neural_craft_flutter.zip -d .
-
-    - uses: subosito/flutter-action@v2
-      with:
-        channel: 'stable'
-
-    - name: Get dependencies
-      run: |
-        cd neural_craft_flutter
-        flutter pub get --no-example
-
-    - name: Build APK
-      run: |
-        cd neural_craft_flutter
-        flutter build apk --release --no-pub
-        
+      # 2. أمر فك الضغط التلقائي والبحث عن ملفات فلاتر
+      - name: Decompress Project File (ZIP)
+        run: |
+          echo "=== جاري فك ضغط ملف المشروع ==="
+          unzip -q neural_craft_flutter.zip -d extracted_project
+          echo "=== تم فك الضغط بنجاح ==="
+          
+          # التحقق من مكان وجود ملف pubspec.yaml تلقائياً لتجنب مشاكل المسارات
+          cd extracted_project
+          if [ -f "pubspec.yaml" ]; then
+            echo "PROJECT_DIR=$(pwd)" >> $GITHUB_ENV
+          else
+            INNER_DIR=$(find . -maxdepth 2 -name "pubspec.yaml" -exec dirname {} \;)
+            if [ ! -z "$INNER_DIR" ]; then
+              cd $INNER_DIR
+              echo "PROJECT_DIR=$(pwd)" >> $GITHUB_ENV
+            else
+              echo "خطأ: لم يتم العثور على ملف pubspec.yaml داخل الملف المضغوط!"
+              
