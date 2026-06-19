@@ -1,0 +1,30 @@
+name: Build Android APK
+on: [push, workflow_dispatch]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Unzip project file
+        run: unzip -q neural_craft_flutter.zip -d .
+        
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          
+      - name: Get dependencies
+        run: |
+          cd neural_craft_flutter
+          flutter pub get
+          
+      - name: Build APK
+        run: |
+          cd neural_craft_flutter
+          flutter build apk --release
+          
+      - uses: actions/upload-artifact@v3
+        with:
+          name: release-apk
+          path: neural_craft_flutter/build/app/outputs/flutter-apk/app-release.apk
+          
