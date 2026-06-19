@@ -19,6 +19,7 @@ jobs:
     - name: Get dependencies
       run: |
         cd neural_craft_flutter
+        flutter pub add intl:^0.20.2
         flutter pub get
 
     - name: Build APK
